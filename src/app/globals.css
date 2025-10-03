@@ -1,0 +1,157 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+/* 1) Tailwind v4 로드 */
+@import "tailwindcss"; /* (= preflight + utilities 포함) */
+
+/* 2) 테마 토큰: 색상 + 텍스트 사이즈/라인하이트 */
+@theme {
+	/* colors */
+	--color-main: #fff8a6;
+	--color-gray10: #f4f5f8;
+	--color-gray50: #d3d4da;
+	--color-subYellow: #fff583;
+	--color-subPurple: #c089f8;
+	--color-subYello3: #f8ef89;
+	--color-subnoneYello3: #f8ef89;
+	--color-subPurple2: #c8c8ea;
+	--color-subPurple3: #e1e1f4;
+	--color-subBlue: #0b0b0d;
+	--color-black: #000000;
+
+	--color-700: #4e505b;
+	--color-500: #8c8f98;
+	--color-300: #d3d4da;
+	--color-100: #f4f5f8;
+	--color-0: #ffffff;
+
+	--color-red: #ff5656;
+	--color-blue50: #ebf6ff;
+	--color-blue100: #dceeff;
+	--color-blue200: #b8ddff;
+
+	--color-yellow100: #fff8a6;
+	--color-yellowBorder: #e0c864;
+	--color-muted-foreground: #6b7280;
+
+	/* text tokens (v4 규칙: --text-*, --leading-*) */
+	--text-h1: 48px;
+	--text-h2: 28px;
+	--leading-h2: 32px;
+	--text-body2: 14px;
+	--leading-body2: 20px;
+	--text-body4: 12px;
+	--leading-body4: 18px;
+}
+
+/* 3) 텍스트 유틸: v4에서는 @utility 또는 @layer utilities 사용 */
+/* 3-1) @utility로 각각 정의 */
+@utility text-h1 {
+	font-size: 48px;
+	font-weight: 600;
+}
+@utility title-h1 {
+	font-size: 32px;
+	font-weight: 600;
+}
+@utility text-h2 {
+	font-size: 24px;
+	font-weight: 600;
+} /* (토큰과 별개 유틸) */
+@utility text-body1 {
+	font-size: 20px;
+	font-weight: 600;
+}
+@utility text-body2 {
+	font-size: 16px;
+	font-weight: 600;
+}
+@utility text-body3 {
+	font-size: 14px;
+	font-weight: 600;
+}
+@utility text-body4 {
+	font-size: 12px;
+	font-weight: 400;
+}
+@utility text-body5 {
+	font-size: 12px;
+	font-weight: 600;
+}
+@utility text-button {
+	font-size: 14px;
+}
+@utility text-main {
+	font-size: 15px;
+}
+@utility text-title1 {
+	font-size: 19px;
+	line-height: normal;
+	font-weight: 700;
+}
+@utility text-title2 {
+	font-size: 22px;
+	line-height: normal;
+	font-weight: 600;
+}
+@utility text-title3 {
+	font-size: 25px;
+	line-height: normal;
+	font-weight: 600;
+}
+@utility text-subtitle {
+	font-size: 16px;
+}
+
+/* (원한다면 대신)
+@layer utilities {
+  .text-h1{font-size:48px;font-weight:600}
+  ... 동일 내용 ...
+}
+*/
+
+/* 4) (선택) 외부 폰트 */
+
+/* 5) 커스텀 유틸 */
+@layer utilities {
+	.text-balance {
+		text-wrap: balance;
+	}
+}
+
+/* 6) 글로벌 기본 */
+html {
+	height: -webkit-fill-available;
+}
+body {
+	min-height: 100vh;
+	min-height: -webkit-fill-available;
+	font-family: "Pretendard Variable", Pretendard, -apple-system,
+		BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+		"Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+/* 스크롤바 숨김 */
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+/* 모바일 입력 최적화 */
+input[type="text"] {
+	font-size: 16px !important;
+	-webkit-appearance: none;
+	appearance: none;
+}
+@media (max-width: 768px) {
+	input,
+	textarea,
+	select {
+		font-size: 16px !important;
+		transform-origin: left top;
+		zoom: 1;
+	}
+}

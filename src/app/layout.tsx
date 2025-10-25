@@ -18,6 +18,17 @@ export const metadata: Metadata = {
 		template: `%s | ${site.name}`,
 	},
 	description: site.description,
+	keywords: [
+		"ADHD 테스트",
+		"ADHD 단어 테스트",
+		"집중력 테스트",
+		"주의력 검사",
+		"단어 기억 테스트",
+		"ADHD quiz",
+	],
+	alternates: {
+		canonical: "/", // 다국어 있으면 languages 추가
+	},
 	openGraph: {
 		title: site.title,
 		description: site.description,
@@ -32,6 +43,12 @@ export const metadata: Metadata = {
 		title: site.title,
 		description: site.description,
 		images: [site.ogImage],
+	},
+	icons: {
+		icon: [
+			{ url: "/favicon.svg", type: "image/svg+xml" },
+			{ url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+		],
 	},
 };
 

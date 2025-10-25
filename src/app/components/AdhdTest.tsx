@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import ResultView from "./ResultView";
+import { sendEvent } from "../utils/ga";
 
 const CONFIG = {
 	TARGET_COUNT: 8,
@@ -58,7 +59,11 @@ export default function AdhdTestPage() {
 	const [score, setScore] = useState(0);
 	const [gameKey, setGameKey] = useState(0);
 
-	// ✅ 라운드가 바뀔 때마다(= gameKey 변경마다) 새로 셔플
+	//  페이지 진입 이벤트
+	useEffect(() => {
+		sendEvent("adhd_page_view", { page: "ready" });
+	}, []);
+
 	const { targetWords, allOptions } = useMemo(() => {
 		const shuffled = shuffle(WORDS);
 		const targets = shuffled.slice(0, CONFIG.TARGET_COUNT);
@@ -66,14 +71,15 @@ export default function AdhdTestPage() {
 			CONFIG.TARGET_COUNT,
 			CONFIG.TARGET_COUNT + CONFIG.DISTRACTOR_COUNT
 		);
-		const options = shuffle([...targets, ...distractors]); // 보기 순서도 매 라운드 랜덤
+		const options = shuffle([...targets, ...distractors]);
 		return { targetWords: targets, allOptions: options };
-	}, [gameKey]); 
+	}, [gameKey]);
 
 	const startGame = () => {
-		setGameKey((k) => k + 1); // 새 라운드 시드
-		setSelectedWords(new Set()); // 선택 초기화
-		setCurrentWordIndex(0); // 인덱스 초기화
+		sendEvent("adhd_start_click", { source: "ready_screen" }); //시작 클릭 이벤트
+		setGameKey((k) => k + 1);
+		setSelectedWords(new Set());
+		setCurrentWordIndex(0);
 		setPhase("showing");
 	};
 
@@ -95,6 +101,7 @@ export default function AdhdTestPage() {
 
 	const finishGame = useCallback(() => {
 		const correctCount = targetWords.filter((w) => selectedWords.has(w)).length;
+		sendEvent("adhd_submit", { score: correctCount }); // ✅ 제출 이벤트
 		setScore(correctCount);
 		setPhase("finished");
 	}, [targetWords, selectedWords]);
@@ -122,14 +129,6 @@ export default function AdhdTestPage() {
 		});
 	};
 
-	const restartGame = () => {
-		setSelectedWords(new Set());
-		setCurrentWordIndex(0);
-		setGameKey((prev) => prev + 1); // ✅ 다시하기 시 새 시드
-		setPhase("ready");
-		setTimeLeft(0);
-	};
-
 	const formatTime = (ms: number) => {
 		const s = Math.max(0, Math.ceil(ms / 1000));
 		const mm = String(Math.floor(s / 60)).padStart(2, "0");
@@ -142,10 +141,7 @@ export default function AdhdTestPage() {
 			<div className="relative w-full max-w-md mx-auto flex flex-col px-8 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
 				<main className="flex-1 flex flex-col">
 					{phase === "ready" && (
-						<section
-							className="flex-1 flex flex-col items-center justify-center text-center gap-8"
-							key={`ready-${gameKey}`}
-						>
+						<section className="flex-1 flex flex-col items-center justify-center text-center gap-8">
 							<div>
 								<h1 className="text-h2 tracking-tight">
 									ADHD 단어 기억 테스트!
@@ -171,10 +167,7 @@ export default function AdhdTestPage() {
 					)}
 
 					{phase === "showing" && (
-						<section
-							className="flex-1 flex items-center justify-center text-center"
-							key={`showing-${gameKey}`}
-						>
+						<section className="flex-1 flex items-center justify-center text-center">
 							<div className="w-[314px] h-[130px] bg-white shadow-sm flex flex-col items-center justify-center pt-[13px] pb-[20px] gap-[13px]">
 								<div className="text-3xl font-extrabold">
 									{targetWords[currentWordIndex]}
@@ -187,10 +180,7 @@ export default function AdhdTestPage() {
 					)}
 
 					{phase === "selecting" && (
-						<section
-							className="flex-1 flex flex-col items-center justify-center text-center gap-6"
-							key={`selecting-${gameKey}`}
-						>
+						<section className="flex-1 flex flex-col items-center justify-center text-center gap-6">
 							<p className="text-base font-medium">기억한 단어를 선택하세요!</p>
 							<div className="text-h1 font-extrabold">
 								{formatTime(timeLeft)}
@@ -238,16 +228,11 @@ export default function AdhdTestPage() {
 					)}
 
 					{phase === "finished" && (
-						<section
-							className="flex-1 flex items-center justify-center"
-							key={`finished-${gameKey}`}
-						>
+						<section className="flex-1 flex items-center justify-center">
 							<ResultView
 								score={score}
 								max={targetWords.length}
 								targets={targetWords}
-								onRestart={restartGame}
-								onBackToHome={restartGame}
 							/>
 						</section>
 					)}

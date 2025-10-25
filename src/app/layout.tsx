@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import ClientLayout from "./ClientLayout"; 
 import "./globals.css";
 
 const site = {
 	name: "먼지치우기",
-	url: "https://adhdquiz.store", 
+	url: "https://adhdquiz.store",
 	title: "ADHD 단어 기억 테스트",
 	description:
 		"ADHD 단어 기억 퀴즈로 집중력을 체크해보세요. 8개의 단어를 기억하고 제한 시간 안에 맞춰보는 초간단 테스트.",
@@ -17,17 +18,6 @@ export const metadata: Metadata = {
 		template: `%s | ${site.name}`,
 	},
 	description: site.description,
-	keywords: [
-		"ADHD 테스트",
-		"ADHD 단어 테스트",
-		"집중력 테스트",
-		"주의력 검사",
-		"단어 기억 테스트",
-		"ADHD quiz",
-	],
-	alternates: {
-		canonical: "/", // 다국어 있으면 languages 추가
-	},
 	openGraph: {
 		title: site.title,
 		description: site.description,
@@ -43,12 +33,6 @@ export const metadata: Metadata = {
 		description: site.description,
 		images: [site.ogImage],
 	},
-	icons: {
-		icon: [
-			{ url: "/favicon.svg", type: "image/svg+xml" },
-			{ url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-		],
-	},
 };
 
 export default function RootLayout({
@@ -58,7 +42,9 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="ko">
-			<body className="min-h-screen bg-gray100 text-zinc-900">{children}</body>
+			<body className="min-h-screen bg-gray100 text-zinc-900">
+				<ClientLayout>{children}</ClientLayout>
+			</body>
 		</html>
 	);
 }

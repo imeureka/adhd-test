@@ -5,7 +5,7 @@ import Image from "next/image";
 export type ResultMeta = {
 	title: string;
 	subtitle: string;
-	image: string; // /public/images 경로
+	image: string;
 };
 
 export const RESULT_BY_SCORE: Record<number, ResultMeta> = {
@@ -82,21 +82,67 @@ export interface ResultViewProps {
 export default function ResultView({ score, max, onRestart }: ResultViewProps) {
 	const meta = getResultMeta(score);
 
-	const handleShare = async () => {
-		const shareData = {
-			title: "ADHD 단어 기억 테스트",
-			text: `정답 ${max}개 중 ${score}개 맞췄어요!`,
-			url: typeof window !== "undefined" ? window.location.href : "",
-		};
-		try {
-			if (navigator.share) await navigator.share(shareData);
-			else {
-				await navigator.clipboard.writeText(
-					`${shareData.text} ${shareData.url}`
-				);
-				alert("링크가 복사됐어요!");
+	// 🔗 딥링크 & 앱스토어 경로
+	const APP_SCHEME = "monjitimer://todo?autoAdd=true"; // 네 앱 스킴
+	const APP_STORE_HTTP =
+		"https://apps.apple.com/kr/app/%EB%A8%BC%EC%A7%80%EC%B9%98%EC%9A%B0%EA%B8%B0-%ED%83%80%EC%9D%B4%EB%A8%B8-%ED%95%A0-%EC%9D%BC-%EC%A7%91%EC%A4%91/id6748334514";
+	const APP_STORE_IOS = "itms-apps://itunes.apple.com/app/id6748334514";
+
+	// iOS 여부
+	const isIOS =
+		typeof navigator !== "undefined" &&
+		/iPad|iPhone|iPod/.test(navigator.userAgent);
+
+	const goToStore = () => {
+		if (typeof window === "undefined") return;
+		window.location.href = isIOS ? APP_STORE_IOS : APP_STORE_HTTP;
+	};
+
+	/**
+	 * 공유 버튼 -> 앱 열기(딥링크) 시도 -> 실패/미설치면 App Store로
+	 * - iOS Safari에선 딥링크 성공 시 페이지가 background로 가면서 document.hidden=true
+	 * - 일정 시간 내 hidden 안 되면 미설치로 보고 스토어 폴백
+	 */
+	const handleShare = () => {
+		if (typeof window === "undefined") return;
+
+		const start = Date.now();
+		let fallbackTimer: number | undefined;
+
+		const cancelFallback = () => {
+			if (fallbackTimer) {
+				window.clearTimeout(fallbackTimer);
+				fallbackTimer = undefined;
 			}
-		} catch {}
+			document.removeEventListener("visibilitychange", onVisibilityChange);
+			window.removeEventListener("pagehide", onPageHide);
+		};
+
+		const onVisibilityChange = () => {
+			// 앱이 열리면 브라우저가 백그라운드로 가며 hidden=true
+			if (document.hidden) cancelFallback();
+		};
+
+		const onPageHide = () => {
+			// 일부 브라우저에선 pagehide로도 감지 가능
+			cancelFallback();
+		};
+
+		document.addEventListener("visibilitychange", onVisibilityChange);
+		window.addEventListener("pagehide", onPageHide);
+
+		// 1) 딥링크 시도
+		window.location.href = APP_SCHEME;
+
+		// 2) 일정 시간 내 앱 전환이 없으면 스토어로
+		fallbackTimer = window.setTimeout(() => {
+			// 아주 드물게 iOS에서 alert 등으로 지연될 수 있으니 시간 체크는 보조로만 사용
+			const elapsed = Date.now() - start;
+			if (elapsed < 1800) {
+				goToStore();
+			}
+			cancelFallback();
+		}, 1500);
 	};
 
 	return (
@@ -109,7 +155,6 @@ export default function ResultView({ score, max, onRestart }: ResultViewProps) {
 					<p className="mt-5 text-sm text-zinc-500">{meta.subtitle}</p>
 				</div>
 
-				{/* 캐릭터 (SVG 경로) */}
 				<Image
 					src={meta.image}
 					alt={meta.title}
@@ -133,7 +178,7 @@ export default function ResultView({ score, max, onRestart }: ResultViewProps) {
 					</button>
 					<button
 						onClick={handleShare}
-						aria-label="공유"
+						aria-label="앱으로 열기"
 						className="h-[50px] w-[64px] rounded-[12px] bg-yellow-100 text-gray-900 font-semibold shadow-sm hover:bg-yellow-200 transition"
 					>
 						공유

@@ -8,7 +8,7 @@ const site = {
 	title: "ADHD 단어 기억 테스트",
 	description:
 		"ADHD 단어 기억 퀴즈로 집중력을 체크해보세요. 8개의 단어를 기억하고 제한 시간 안에 맞춰보는 초간단 테스트.",
-	ogImage: "/og.png",
+	ogImage: "/insta.png",
 };
 
 export const metadata: Metadata = {

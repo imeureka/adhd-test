@@ -14,21 +14,24 @@ export default async function Image() {
 		(
 			<div
 				style={{
-					height: "100%",
 					width: "100%",
+					height: "100%",
 					display: "flex",
-					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "center",
-					backgroundColor: "#fff8a6",
-					fontSize: 60,
-					fontWeight: 600,
+					backgroundColor: "black",
 				}}
 			>
-				<div>ADHD 단어 기억 테스트</div>
-				<div style={{ fontSize: 30, marginTop: 20, opacity: 0.8 }}>
-					집중력과 기억력을 테스트해보세요
-				</div>
+				{/* OG에 그대로 박을 이미지 */}
+				<img
+					src="https://adhdquiz.store/insta.png"
+					alt="ADHD 단어 기억 테스트"
+					style={{
+						width: "100%",
+						height: "100%",
+						objectFit: "cover",
+					}}
+				/>
 			</div>
 		),
 		{

@@ -102,39 +102,36 @@ export default function ResultView({ score, max }: ResultViewProps) {
 		sendEvent("adhd_open_app_click", {
 			score,
 			platform: isIOS ? "ios" : "android",
-		}); // ✅ 앱 이동 이벤트
+		});
 
 		if (typeof window === "undefined") return;
+
+		const APP_SCHEME = "monjitimer://";
+		const APP_STORE_IOS = "itms-apps://itunes.apple.com/app/id6748334514";
+		const APP_STORE_HTTP =
+			"https://apps.apple.com/kr/app/%EB%A8%BC%EC%A7%80%EC%B9%98%EC%9A%B0%EA%B8%B0-%ED%83%80%EC%9D%B4%EB%A8%B8-%ED%95%A0-%EC%9D%BC-%EC%A7%91%EC%A4%91/id6748334514";
+
+		const storeURL = isIOS ? APP_STORE_IOS : APP_STORE_HTTP;
+
+		// 1️⃣ 커스텀 스킴 시도 (iframe 방식)
+		const iframe = document.createElement("iframe");
+		iframe.style.display = "none";
+		iframe.src = APP_SCHEME;
+		document.body.appendChild(iframe);
+
+		// 2️⃣ 일정 시간 후 fallback (앱 미설치 시 앱스토어로)
 		const start = Date.now();
-		let fallbackTimer: number | undefined;
-
-		const cancelFallback = () => {
-			if (fallbackTimer) {
-				clearTimeout(fallbackTimer);
-				fallbackTimer = undefined;
-			}
-			document.removeEventListener("visibilitychange", onVisibilityChange);
-			window.removeEventListener("pagehide", onPageHide);
-		};
-
-		const onVisibilityChange = () => {
-			if (document.hidden) cancelFallback();
-		};
-
-		const onPageHide = () => cancelFallback();
-
-		document.addEventListener("visibilitychange", onVisibilityChange);
-		window.addEventListener("pagehide", onPageHide);
-
-		window.location.href = APP_SCHEME;
-
-		fallbackTimer = window.setTimeout(() => {
+		setTimeout(() => {
 			const elapsed = Date.now() - start;
 			if (elapsed < 1800) {
-				const storeURL = isIOS ? APP_STORE_IOS : APP_STORE_HTTP;
-				window.location.href = storeURL;
+				// iframe 실패 → 앱스토어 링크를 직접 클릭 방식으로 실행
+				const a = document.createElement("a");
+				a.href = storeURL;
+				a.target = "_blank";
+				a.rel = "noopener noreferrer";
+				a.click();
 			}
-			cancelFallback();
+			document.body.removeChild(iframe);
 		}, 1500);
 
 		setShowModal(false);
